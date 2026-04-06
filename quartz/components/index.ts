@@ -1,6 +1,8 @@
 import Content from "./pages/Content"
 import TagContent from "./pages/TagContent"
 import FolderContent from "./pages/FolderContent"
+import BaseContent from "./pages/BaseContent"
+import BaseViewSelector from "./BaseViewSelector"
 import NotFound from "./pages/404"
 import ArticleTitle from "./ArticleTitle"
 import Darkmode from "./Darkmode"
@@ -29,6 +31,8 @@ export {
   Content,
   TagContent,
   FolderContent,
+  BaseContent,
+  BaseViewSelector,
   Darkmode,
   ReaderMode,
   Head,

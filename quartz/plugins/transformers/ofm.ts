@@ -289,8 +289,11 @@ export const ObsidianFlavoredMarkdown: QuartzTransformerPlugin<Partial<Options>>
                   }
                 }
 
-                // internal link
-                const url = fp + anchor
+                const isBaseFile = fp.endsWith(".base")
+                const basePath = isBaseFile ? fp.slice(0, -5) : fp
+                const url = isBaseFile
+                  ? basePath + (anchor ? `/${anchor.slice(1).replace(/\s+/g, "-")}` : "")
+                  : fp + anchor
 
                 return {
                   type: "link",
@@ -298,7 +301,7 @@ export const ObsidianFlavoredMarkdown: QuartzTransformerPlugin<Partial<Options>>
                   children: [
                     {
                       type: "text",
-                      value: alias ?? fp,
+                      value: alias ?? basePath,
                     },
                   ],
                 }

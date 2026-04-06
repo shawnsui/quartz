@@ -104,12 +104,16 @@ export function createFileParser(ctx: BuildCtx, fps: FilePath[]) {
         file.data.relativePath = path.posix.relative(argv.directory, file.path) as FilePath
         file.data.slug = slugifyFilePath(file.data.relativePath)
 
-        const ast = processor.parse(file)
+        const isBaseFile = fp.endsWith(".base")
+        const ast: MDRoot = isBaseFile ? { type: "root", children: [] } : processor.parse(file)
+
         const newAst = await processor.run(ast, file)
         res.push([newAst, file])
 
         if (argv.verbose) {
-          console.log(`[markdown] ${fp} -> ${file.data.slug} (${perf.timeSince()})`)
+          console.log(
+            `[${isBaseFile ? "base" : "markdown"}] ${fp} -> ${file.data.slug} (${perf.timeSince()})`,
+          )
         }
       } catch (err) {
         trace(`\nFailed to process markdown \`${fp}\``, err as Error)

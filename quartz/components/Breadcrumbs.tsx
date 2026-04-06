@@ -51,7 +51,9 @@ export default ((opts?: Partial<BreadcrumbOptions>) => {
     ctx,
   }: QuartzComponentProps) => {
     const trie = (ctx.trie ??= trieFromAllFiles(allFiles))
-    const slugParts = fileData.slug!.split("/")
+    const baseMeta = fileData.basesMetadata
+
+    const slugParts = (baseMeta ? baseMeta.baseSlug : fileData.slug!).split("/")
     const pathNodes = trie.ancestryChain(slugParts)
 
     if (!pathNodes) {
@@ -64,13 +66,23 @@ export default ((opts?: Partial<BreadcrumbOptions>) => {
         crumb.displayName = options.rootName
       }
 
-      // For last node (current page), set empty path
       if (idx === pathNodes.length - 1) {
-        crumb.path = ""
+        if (baseMeta) {
+          crumb.path = resolveRelative(fileData.slug!, simplifySlug(baseMeta.baseSlug))
+        } else {
+          crumb.path = ""
+        }
       }
 
       return crumb
     })
+
+    if (baseMeta && options.showCurrentPage) {
+      crumbs.push({
+        displayName: baseMeta.currentView.replaceAll("-", " "),
+        path: "",
+      })
+    }
 
     if (!options.showCurrentPage) {
       crumbs.pop()

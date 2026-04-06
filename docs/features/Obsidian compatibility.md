@@ -10,8 +10,10 @@ By default, Quartz ships with the [[ObsidianFlavoredMarkdown]] plugin, which is 
 
 It also ships with support for [frontmatter parsing](https://help.obsidian.md/Editing+and+formatting/Properties) with the same fields that Obsidian uses through the [[Frontmatter]] transformer plugin.
 
-Finally, Quartz also provides [[CrawlLinks]] plugin, which allows you to customize Quartz's link resolution behaviour to match Obsidian.
+Quartz also provides [[CrawlLinks]] plugin, which allows you to customize Quartz's link resolution behaviour to match Obsidian.
+
+For dynamic database-like views, Quartz supports [[bases|Obsidian Bases]] through the [[ObsidianBases]] transformer and [[BasePage]] emitter plugins.
 
 ## Configuration
 
-This functionality is provided by the [[ObsidianFlavoredMarkdown]], [[Frontmatter]] and [[CrawlLinks]] plugins. See the plugin pages for customization options.
+This functionality is provided by the [[ObsidianFlavoredMarkdown]], [[ObsidianBases]], [[Frontmatter]] and [[CrawlLinks]] plugins. See the plugin pages for customization options.
