@@ -1,6 +1,8 @@
 import { QuartzComponent, QuartzComponentConstructor, QuartzComponentProps } from "../types"
 import style from "../styles/basePage.scss"
 import { htmlToJsx } from "../../util/jsx"
+// @ts-ignore
+import mapScript from "../scripts/base-map.inline"
 
 export default (() => {
   const BaseContent: QuartzComponent = (props: QuartzComponentProps) => {
@@ -16,5 +18,6 @@ export default (() => {
   }
 
   BaseContent.css = style
+  BaseContent.afterDOMLoaded = mapScript
   return BaseContent
 }) satisfies QuartzComponentConstructor
