@@ -5,6 +5,8 @@ tags:
   - place
   - city
 category: city
+loc:
+  - "[[europe-trip]]"
 ---
 
 England's capital on the Thames. Home to Big Ben, the British Museum, and countless pubs.

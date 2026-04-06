@@ -155,14 +155,21 @@ async function initMaps() {
 
       for (const marker of markers) {
         const el = createMarkerElement(marker.color)
+        const markerInstance = new maplibregl.Marker({ element: el })
+          .setLngLat([marker.lon, marker.lat])
+          .addTo(map)
 
-        el.addEventListener("mouseenter", () => {
+        const markerEl = markerInstance.getElement()
+
+        markerEl.style.cursor = "pointer"
+
+        markerEl.addEventListener("mouseenter", () => {
           popup.setLngLat([marker.lon, marker.lat])
             .setHTML(buildPopupHTML(marker, currentSlug))
             .addTo(map)
         })
 
-        el.addEventListener("mouseleave", () => {
+        markerEl.addEventListener("mouseleave", () => {
           setTimeout(() => {
             const popupEl = popup.getElement()
             if (popupEl && !popupEl.matches(":hover")) {
@@ -171,24 +178,11 @@ async function initMaps() {
           }, 150)
         })
 
-        el.addEventListener("click", () => {
+        markerEl.addEventListener("click", (e: MouseEvent) => {
+          e.stopPropagation()
           window.location.href = `/${marker.slug}`
         })
-
-        new maplibregl.Marker({ element: el })
-          .setLngLat([marker.lon, marker.lat])
-          .addTo(map)
       }
-
-      popup.on("close", () => {})
-      document.addEventListener("mouseover", (e: MouseEvent) => {
-        const popupEl = popup.getElement()
-        if (!popupEl) return
-        const target = e.target as HTMLElement
-        if (!popupEl.contains(target) && !target.closest(".base-map-marker")) {
-          popup.remove()
-        }
-      })
 
       if (markers.length > 1) {
         const bounds = new maplibregl.LngLatBounds()

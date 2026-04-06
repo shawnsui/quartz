@@ -1,0 +1,52 @@
+filters:
+  and:
+    - file.hasTag("place")
+properties:
+  title:
+    displayName: Name
+  note.category:
+    displayName: Category
+  note.coordinates:
+    displayName: Coordinates
+  note.loc:
+    displayName: Trips
+views:
+  - type: map
+    name: Trip Map
+    filters:
+      and:
+        - list(loc).contains(this)
+    coordinates: note.coordinates
+    defaultZoom: 3
+    order:
+      - title
+      - note.category
+  - type: table
+    name: Trip Places
+    filters:
+      and:
+        - list(loc).contains(this)
+    order:
+      - file.name
+      - title
+      - note.category
+    sort:
+      - property: title
+        direction: ASC
+  - type: map
+    name: All Locations
+    coordinates: note.coordinates
+    defaultZoom: 2
+    order:
+      - title
+      - note.category
+  - type: table
+    name: All Places
+    order:
+      - file.name
+      - title
+      - note.category
+      - note.loc
+    sort:
+      - property: title
+        direction: ASC

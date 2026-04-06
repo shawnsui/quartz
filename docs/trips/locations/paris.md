@@ -5,6 +5,8 @@ tags:
   - place
   - city
 category: city
+loc:
+  - "[[europe-trip]]"
 ---
 
 The City of Light. Art, cuisine, the Eiffel Tower, and sidewalk cafes.

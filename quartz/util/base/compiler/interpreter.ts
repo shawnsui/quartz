@@ -1654,6 +1654,22 @@ const resolveLinkSlugFromText = (raw: string, ctx: EvalContext): string | undefi
     if (/^[a-z][a-z0-9+.-]*:/.test(parsed.target)) return undefined
     if (currentSlug) {
       const resolved = resolveWikilinkTarget(parsed, currentSlug as FullSlug)
+      if (resolved) {
+        const resolvedSimple = simplifySlug(resolved.slug)
+        if (ctx.allFiles.some((f) => resolveFileSlug(f) === resolvedSimple)) {
+          return resolvedSimple
+        }
+      }
+      // shortest path fallback: try target as-is from any location
+      const target = parsed.target.trim()
+      if (target) {
+        const targetSlug = simplifySlug(slugifyFilePath(target as FilePath))
+        const match = ctx.allFiles.find((f) => {
+          const fileSlug = resolveFileSlug(f)
+          return fileSlug === targetSlug || (fileSlug && fileSlug.endsWith("/" + targetSlug))
+        })
+        if (match) return resolveFileSlug(match)
+      }
       return resolved ? simplifySlug(resolved.slug) : undefined
     }
     const parsedTarget = parsed.target.trim()

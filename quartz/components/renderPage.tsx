@@ -115,7 +115,8 @@ function renderTranscludes(
         if (isBaseTransclude) {
           const viewName = (node.properties.dataBlock as string)?.trim()
           const allFiles = componentData.allFiles
-          const { views } = renderBaseViewsForFile(page, allFiles)
+          const currentFile = allFiles.find((f) => f.slug === slug)
+          const { views } = renderBaseViewsForFile(page, allFiles, currentFile)
 
           const slugify = (s: string) => s.toLowerCase().replace(/\s+/g, "-")
           let matchedView = viewName

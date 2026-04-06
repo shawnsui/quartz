@@ -5,6 +5,8 @@ tags:
   - place
   - nature
 category: park
+loc:
+  - "[[california-trip]]"
 ---
 
 Granite cliffs, waterfalls, giant sequoias, and some of the best rock climbing in the world.
