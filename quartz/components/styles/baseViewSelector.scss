@@ -81,7 +81,8 @@
     display: none;
   }
 
-  &:has(.text-icon-button.has-active-menu) .menu-scroll {
+  &:has(.text-icon-button.has-active-menu) .menu-scroll,
+  &.is-open .menu-scroll {
     display: block;
   }
 

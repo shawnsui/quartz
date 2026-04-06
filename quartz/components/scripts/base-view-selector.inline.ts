@@ -51,12 +51,14 @@ function setupBaseViewSelector() {
     function openDropdown() {
       trigger.setAttribute("aria-expanded", "true")
       trigger.classList.add("has-active-menu")
+      selector.classList.add("is-open")
       setTimeout(() => searchInput.focus(), 10)
     }
 
     function closeDropdown() {
       trigger.setAttribute("aria-expanded", "false")
       trigger.classList.remove("has-active-menu")
+      selector.classList.remove("is-open")
       searchInput.value = ""
       clearButton.hidden = true
       filterViews("")
