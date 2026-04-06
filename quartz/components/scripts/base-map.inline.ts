@@ -76,7 +76,7 @@ function createMarkerElement(color?: string): HTMLDivElement {
   return el
 }
 
-function buildPopupHTML(marker: MapMarker, currentSlug: string): string {
+function buildPopupHTML(marker: MapMarker, _currentSlug: string): string {
   const parts: string[] = []
   const href = `/${marker.slug}`
   parts.push(`<a class="base-map-popup-title" href="${href}">${escapeHtml(marker.title)}</a>`)
@@ -147,20 +147,48 @@ async function initMaps() {
     map.addControl(new maplibregl.NavigationControl(), "top-right")
 
     map.on("load", () => {
+      const popup = new maplibregl.Popup({
+        offset: 25,
+        closeButton: false,
+        maxWidth: "300px",
+      })
+
       for (const marker of markers) {
         const el = createMarkerElement(marker.color)
 
-        const popup = new maplibregl.Popup({
-          offset: 25,
-          closeButton: false,
-          maxWidth: "300px",
-        }).setHTML(buildPopupHTML(marker, currentSlug))
+        el.addEventListener("mouseenter", () => {
+          popup.setLngLat([marker.lon, marker.lat])
+            .setHTML(buildPopupHTML(marker, currentSlug))
+            .addTo(map)
+        })
+
+        el.addEventListener("mouseleave", () => {
+          setTimeout(() => {
+            const popupEl = popup.getElement()
+            if (popupEl && !popupEl.matches(":hover")) {
+              popup.remove()
+            }
+          }, 150)
+        })
+
+        el.addEventListener("click", () => {
+          window.location.href = `/${marker.slug}`
+        })
 
         new maplibregl.Marker({ element: el })
           .setLngLat([marker.lon, marker.lat])
-          .setPopup(popup)
           .addTo(map)
       }
+
+      popup.on("close", () => {})
+      document.addEventListener("mouseover", (e: MouseEvent) => {
+        const popupEl = popup.getElement()
+        if (!popupEl) return
+        const target = e.target as HTMLElement
+        if (!popupEl.contains(target) && !target.closest(".base-map-marker")) {
+          popup.remove()
+        }
+      })
 
       if (markers.length > 1) {
         const bounds = new maplibregl.LngLatBounds()
@@ -176,4 +204,23 @@ async function initMaps() {
   })
 }
 
-document.addEventListener("nav", initMaps)
+document.addEventListener("nav", () => {
+  initMaps()
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (node instanceof HTMLElement) {
+          if (node.querySelector(".base-map")) {
+            initMaps()
+            return
+          }
+        }
+      }
+    }
+  })
+
+  observer.observe(document.body, { childList: true, subtree: true })
+
+  window.addCleanup(() => observer.disconnect())
+})

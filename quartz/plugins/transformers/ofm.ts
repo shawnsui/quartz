@@ -263,6 +263,14 @@ export const ObsidianFlavoredMarkdown: QuartzTransformerPlugin<Partial<Options>>
                       type: "html",
                       value: `<iframe src="${url}" class="pdf"></iframe>`,
                     }
+                  } else if (ext === ".base") {
+                    const baseSlug = slugifyFilePath(fp.slice(0, -5) as FilePath)
+                    const viewAnchor = anchor ? anchor.slice(1).trim() : ""
+                    return {
+                      type: "html",
+                      data: { hProperties: { transclude: true } },
+                      value: `<blockquote class="transclude" data-url="${baseSlug}" data-block="${viewAnchor}" data-base-transclude="true" data-embed-alias="${alias}"><a href="${baseSlug}" class="transclude-inner">Transclude of ${fp}${anchor}</a></blockquote>`,
+                    }
                   } else {
                     const block = anchor
                     return {

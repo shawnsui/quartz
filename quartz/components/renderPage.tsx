@@ -3,13 +3,15 @@ import { QuartzComponent, QuartzComponentProps } from "./types"
 import HeaderConstructor from "./Header"
 import BodyConstructor from "./Body"
 import { JSResourceToScriptElement, StaticResources } from "../util/resources"
-import { FullSlug, RelativeURL, joinSegments, normalizeHastElement } from "../util/path"
+import { FullSlug, RelativeURL, joinSegments, normalizeHastElement, resolveRelative } from "../util/path"
 import { clone } from "../util/clone"
 import { visit } from "unist-util-visit"
 import { Root, Element, ElementContent } from "hast"
 import { GlobalConfiguration } from "../cfg"
 import { i18n } from "../i18n"
 import { styleText } from "util"
+import { renderBaseViewsForFile } from "../util/base/render"
+import { BaseFile } from "../util/base/types"
 
 interface RenderComponents {
   head: QuartzComponent
@@ -100,12 +102,61 @@ function renderTranscludes(
           ]
           return
         }
-        visited.add(transcludeTarget)
-
         const page = componentData.allFiles.find((f) => f.slug === transcludeTarget)
         if (!page) {
           return
         }
+
+        const isBaseTransclude =
+          node.properties.dataBaseTransclude === "true" ||
+          node.properties["data-base-transclude"] === "true" ||
+          Boolean(page.basesConfig && (page.basesConfig as BaseFile).views?.length > 0)
+
+        if (isBaseTransclude) {
+          const viewName = (node.properties.dataBlock as string)?.trim()
+          const allFiles = componentData.allFiles
+          const { views } = renderBaseViewsForFile(page, allFiles)
+
+          const slugify = (s: string) => s.toLowerCase().replace(/\s+/g, "-")
+          let matchedView = viewName
+            ? views.find(
+                (v) =>
+                  v.view.name.toLowerCase() === viewName.toLowerCase() ||
+                  slugify(v.view.name) === viewName.toLowerCase(),
+              )
+            : views[0]
+
+          if (matchedView?.tree) {
+            const viewChildren = (matchedView.tree.children as ElementContent[]).map((child) =>
+              normalizeHastElement(child as Element, slug, transcludeTarget),
+            )
+            const viewHref = matchedView.slug
+              ? resolveRelative(slug, matchedView.slug)
+              : inner.properties?.href
+            node.tagName = "div"
+            node.properties = { className: ["base-transclude"] }
+            node.children = [
+              {
+                type: "element",
+                tagName: "a",
+                properties: {
+                  href: viewHref,
+                  class: ["internal", "base-transclude-header"],
+                },
+                children: [
+                  {
+                    type: "text",
+                    value: matchedView.view.name,
+                  },
+                ],
+              },
+              ...viewChildren,
+            ]
+          }
+          return
+        }
+
+        visited.add(transcludeTarget)
 
         let blockRef = node.properties.dataBlock as string | undefined
         if (blockRef?.startsWith("#^")) {
