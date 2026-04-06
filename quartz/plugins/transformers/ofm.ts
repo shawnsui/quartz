@@ -269,7 +269,7 @@ export const ObsidianFlavoredMarkdown: QuartzTransformerPlugin<Partial<Options>>
                     return {
                       type: "html",
                       data: { hProperties: { transclude: true } },
-                      value: `<blockquote class="transclude" data-url="${baseSlug}" data-block="${viewAnchor}" data-base-transclude="true" data-embed-alias="${alias}"><a href="${baseSlug}" class="transclude-inner">Transclude of ${fp}${anchor}</a></blockquote>`,
+                      value: `<blockquote class="transclude" data-url="${baseSlug}" data-block="${viewAnchor}" data-base-transclude="true" data-base-slug="${baseSlug}" data-embed-alias="${alias}"><a href="${baseSlug}" class="transclude-inner">Transclude of ${fp}${anchor}</a></blockquote>`,
                     }
                   } else {
                     const block = anchor

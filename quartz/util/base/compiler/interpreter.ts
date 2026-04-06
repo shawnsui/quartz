@@ -1216,7 +1216,8 @@ const evalListMethod = (
     return makeBoolean(list.some((entry) => valueEquals(entry, arg, ctx)))
   }
   if (method === "containsAny") {
-    const values = args
+    const values = args.filter((v) => v.kind !== "null")
+    if (values.length === 0) return makeBoolean(false)
     return makeBoolean(values.some((entry) => list.some((item) => valueEquals(item, entry, ctx))))
   }
   if (method === "containsAll") {
@@ -1689,6 +1690,21 @@ const resolveLinkSlugFromText = (raw: string, ctx: EvalContext): string | undefi
       },
       currentSlug as FullSlug,
     )
+    if (resolved) {
+      const resolvedSimple = simplifySlug(resolved.slug)
+      if (ctx.allFiles.some((f) => resolveFileSlug(f) === resolvedSimple)) {
+        return resolvedSimple
+      }
+    }
+    // shortest path fallback for bare strings
+    if (target) {
+      const targetSlug = simplifySlug(slugifyFilePath(target as FilePath))
+      const match = ctx.allFiles.find((f) => {
+        const fileSlug = resolveFileSlug(f)
+        return fileSlug === targetSlug || (fileSlug && fileSlug.endsWith("/" + targetSlug))
+      })
+      if (match) return resolveFileSlug(match)
+    }
     if (resolved) return simplifySlug(resolved.slug)
   }
   if (!target) return undefined

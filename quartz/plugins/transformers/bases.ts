@@ -336,6 +336,32 @@ function compileViewSummaries(
   return result
 }
 
+function normalizeProperties(
+  raw: unknown,
+): Record<string, { displayName?: string }> | undefined {
+  if (!raw || typeof raw !== "object") return undefined
+  const result: Record<string, { displayName?: string }> = {}
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof value === "string") {
+      result[key] = { displayName: value }
+    } else if (value && typeof value === "object") {
+      result[key] = value as { displayName?: string }
+    }
+  }
+  return Object.keys(result).length > 0 ? result : undefined
+}
+
+function normalizeSortConfigs(views: BaseView[]): void {
+  for (const view of views) {
+    if (Array.isArray(view.sort)) {
+      view.sort = view.sort.map((entry: any) => ({
+        property: entry.property ?? entry.column,
+        direction: entry.direction ?? "ASC",
+      }))
+    }
+  }
+}
+
 export const ObsidianBases: QuartzTransformerPlugin<Partial<BasesOptions>> = (userOpts) => {
   const opts = { ...defaultOptions, ...userOpts }
 
@@ -399,10 +425,10 @@ export const ObsidianBases: QuartzTransformerPlugin<Partial<BasesOptions>> = (us
               }
 
               const views = parseViews(rawViews)
+              normalizeSortConfigs(views)
               const filters = parsed.filters as BaseFileFilter | undefined
-              const properties = parsed.properties as
-                | Record<string, { displayName?: string }>
-                | undefined
+              const rawProperties = parsed.properties ?? parsed.display
+              const properties = normalizeProperties(rawProperties)
               const summaries = parsed.summaries as Record<string, string> | undefined
               const formulas = parsed.formulas as Record<string, string> | undefined
 

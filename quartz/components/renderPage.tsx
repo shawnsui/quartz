@@ -102,17 +102,26 @@ function renderTranscludes(
           ]
           return
         }
-        const page = componentData.allFiles.find((f) => f.slug === transcludeTarget)
+        const isBaseTransclude =
+          node.properties.dataBaseTransclude === "true" ||
+          node.properties["data-base-transclude"] === "true"
+
+        let page = componentData.allFiles.find((f) => f.slug === transcludeTarget)
+
+        if (isBaseTransclude && (!page || !page.basesConfig)) {
+          const baseSlug = (node.properties.dataBaseSlug ?? node.properties["data-base-slug"]) as string | undefined
+          const searchSlug = baseSlug ?? transcludeTarget
+          page = componentData.allFiles.find(
+            (f) => f.basesConfig && (f.slug === searchSlug || (f.slug && f.slug.endsWith("/" + searchSlug)))
+          ) ?? page
+        }
+
         if (!page) {
           return
         }
 
-        const isBaseTransclude =
-          node.properties.dataBaseTransclude === "true" ||
-          node.properties["data-base-transclude"] === "true" ||
-          Boolean(page.basesConfig && (page.basesConfig as BaseFile).views?.length > 0)
-
-        if (isBaseTransclude) {
+        const hasBaseConfig = Boolean(page.basesConfig && (page.basesConfig as BaseFile).views?.length > 0)
+        if (isBaseTransclude && hasBaseConfig) {
           const viewName = (node.properties.dataBlock as string)?.trim()
           const allFiles = componentData.allFiles
           const currentFile = allFiles.find((f) => f.slug === slug)

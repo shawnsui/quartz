@@ -117,8 +117,9 @@ const collectPropertyExpressions = (
 
     if (Array.isArray(view.sort)) {
       view.sort.forEach((entry, sortIndex) => {
-        if (isRecord(entry) && typeof entry.property === "string") {
-          addProperty(entry.property, `${viewContext}.sort[${sortIndex}].property`)
+        if (isRecord(entry)) {
+          const prop = typeof entry.property === "string" ? entry.property : typeof entry.column === "string" ? entry.column : undefined
+          if (prop) addProperty(prop, `${viewContext}.sort[${sortIndex}].property`)
         }
       })
     }
